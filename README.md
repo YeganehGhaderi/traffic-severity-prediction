@@ -78,9 +78,13 @@ Feature selection (35 candidate features -> 25), measured with a Random Forest b
 Using 25 features did not hurt performance. The weak spots are classes 1 and 4 (very few samples, and
 the text of the report is often the only signal).
 
-   ![Confusion matrix of the final XGBoost model](outputs/final_model_confusion_matrix.png)
-
-The full write-up is in [`docs/Project_Report_EN.md`](docs/Project_Report_EN.md).
+The full write-up is in [`docs/Project_Report_EN.md`](docs/Project_Report_EN.md). 
+## Model interpretation (SHAP)
+![SHAP feature importance](outputs/shap_summary.png)
+The most influential features were f7, f1, the incident duration and the start month. Since f1, f7 and f10 are anonymised in the dataset, their meaning cannot be interpreted directly. The features also act on different classes:
+- **Start month** and **duration** mainly drive predictions for Severity 1, the rarest class (<1% of samples). The strong month effect may reflect when these incidents were collected rather than a real seasonal pattern, so it should be treated with caution.
+- **Text-based features** extracted with regular expressions (`is_highway`, `is_severe_crash`, `is_highway_route`) mostly affect Severity 3, while `is_slow_traffic` mostly affects Severity 2, which is consistent with ordinary congestion being a "normal" incident.
+This shows that the free-text report carries real signal, which supports replacing the hand-made regex features with language-model embeddings in future work.
 
 ## Repository structure
 
@@ -120,7 +124,6 @@ All stages were debugged and discussed together.
 
 - Replace Regex features with word embeddings / language models for the report text
 - Add road-network and spatial features (e.g. graph neural networks)
-- Explain predictions with SHAP
 - Model the problem as multi-label classification
 
 ## License
