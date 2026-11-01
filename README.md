@@ -78,6 +78,8 @@ Feature selection (35 candidate features -> 25), measured with a Random Forest b
 Using 25 features did not hurt performance. The weak spots are classes 1 and 4 (very few samples, and
 the text of the report is often the only signal).
 
+   ![Confusion matrix of the final XGBoost model](outputs/final_model_confusion_matrix.png)
+
 The full write-up is in [`docs/Project_Report_EN.md`](docs/Project_Report_EN.md).
 
 ## Repository structure
