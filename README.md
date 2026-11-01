@@ -33,7 +33,7 @@ The data is not redistributed here; see [`data/README.md`](data/README.md).
 ## Method
 
 1. **Split first** (stratified, before any preprocessing) to avoid data leakage.
-2. **Preprocessing pipeline** (custom scikit-learn transformers in `notebooks/custom_transformers.py`):
+2. **Preprocessing pipeline** (custom scikit-learn transformers in `src/custom_transformers.py`):
    - duplicate removal on the training set
    - Regex-based features from the text fields (highway, severe crash, slow traffic, ...) instead of TF-IDF
    - time features: duration in minutes, start hour, month, weekday (cyclic encoding)
@@ -78,19 +78,25 @@ Feature selection (35 candidate features -> 25), measured with a Random Forest b
 Using 25 features did not hurt performance. The weak spots are classes 1 and 4 (very few samples, and
 the text of the report is often the only signal).
 
-The full write-up is in [`docs/Project_Report_EN.md`](docs/Project_Report_EN.md). 
+The full write-up is in [`docs/Project_Report_EN.md`](docs/Project_Report_EN.md).
+
 ## Model interpretation (SHAP)
+
 ![SHAP feature importance](outputs/shap_summary.png)
+
 The most influential features were f7, f1, the incident duration and the start month. Since f1, f7 and f10 are anonymised in the dataset, their meaning cannot be interpreted directly. The features also act on different classes:
+
 - **Start month** and **duration** mainly drive predictions for Severity 1, the rarest class (<1% of samples). The strong month effect may reflect when these incidents were collected rather than a real seasonal pattern, so it should be treated with caution.
 - **Text-based features** extracted with regular expressions (`is_highway`, `is_severe_crash`, `is_highway_route`) mostly affect Severity 3, while `is_slow_traffic` mostly affects Severity 2, which is consistent with ordinary congestion being a "normal" incident.
+
 This shows that the free-text report carries real signal, which supports replacing the hand-made regex features with language-model embeddings in future work.
 
 ## Repository structure
 
 ```
-notebooks/   EDA, Preprocess, Feature_Selection, the three models, Final Evaluation, helper .py files
-outputs/     feature-selection tables and the final confusion matrix
+notebooks/   EDA, Preprocess, Feature_Selection, the three models, Final Evaluation
+src/         reusable code: custom scikit-learn transformers and the inference helper
+outputs/     feature-selection tables, the final confusion matrix and the SHAP plot
 models/      list of the 25 selected features (trained .pkl files are not tracked)
 docs/        English project report
 data/        instructions for obtaining the data (data itself is not included)
@@ -107,11 +113,13 @@ jupyter notebook
 ```
 
 Run the notebooks in this order: `EDA` -> `Preprocess` -> `Feature_Selection` -> the three model notebooks
--> `Final Evaluation`. The notebooks already contain their saved outputs, so you can read the results without running anything.
+-> `Final Evaluation`. Start Jupyter from the project folder and open the notebooks from `notebooks/`; all paths are
+relative to the project, so no path needs to be edited. The notebooks already contain their saved outputs, so you can
+read the results without running anything.
 
 ## Tech stack
 
-Python, pandas, NumPy, scikit-learn, imbalanced-learn (SMOTE), XGBoost, matplotlib, seaborn
+Python, pandas, NumPy, scikit-learn, imbalanced-learn (SMOTE), XGBoost, SHAP, matplotlib, seaborn
 
 ## Team
 
